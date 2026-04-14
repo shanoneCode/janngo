@@ -7,8 +7,8 @@ import { z } from 'zod'
 import { useAuth } from '@/contexts/AuthContext'
 
 const loginSchema = z.object({
-    matricule: z.string().min(1, 'Ce champ est requis'),
-    password: z.string().min(1, 'Ce champ est requis'),
+    email: z.string().email('Email invalide'),
+    mot_de_passe: z.string().min(1, 'Ce champ est requis'),
 })
 
 type LoginForm = z.infer<typeof loginSchema>
@@ -24,16 +24,20 @@ export default function LoginPage() {
         handleSubmit,
         formState: { errors },
     } = useForm<LoginForm>({
-        resolver: zodResolver(loginSchema),
+        resolver: zodResolver(loginSchema)
     })
 
     const onSubmit = async (data: LoginForm) => {
         setError('')
         setIsLoading(true)
         try {
-            await login({ ...data, role })
-        } catch {
-            setError('Identifiants incorrects. Veuillez réessayer.')
+
+            await login({
+                email: data.email,
+                mot_de_passe: data.mot_de_passe
+            })
+        } catch (err: any) {
+            setError(err.message || 'Identifiants incorrects. Veuillez réessayer.')
         } finally {
             setIsLoading(false)
         }
@@ -51,7 +55,7 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                {/* Toggle rôle */}
+                {/* Toggle rôle (UI seulement, le backend détermine le rôle) */}
                 <div className="flex rounded-lg p-1 mb-6" style={{ backgroundColor: '#1a3a52' }}>
                     <button
                         type="button"
@@ -81,21 +85,21 @@ export default function LoginPage() {
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div>
                         <label className="block text-xs mb-1" style={{ color: '#7a9bb5' }}>
-                            Matricule/E-mail
+                            Email
                         </label>
                         <input
-                            {...register('matricule')}
-                            type="text"
+                            {...register('email')}
+                            type="email"
                             className="w-full px-4 py-3 rounded-lg text-white text-sm outline-none focus:ring-2 transition-all"
                             style={{
                                 backgroundColor: '#1a3a52',
-                                border: errors.matricule ? '1px solid #e24b4a' : '1px solid transparent',
+                                border: errors.email ? '1px solid #e24b4a' : '1px solid transparent',
                             }}
-                            placeholder=""
+                            placeholder="exemple@iut.cm"
                         />
-                        {errors.matricule && (
+                        {errors.email && (
                             <p className="text-xs mt-1" style={{ color: '#e24b4a' }}>
-                                {errors.matricule.message}
+                                {errors.email.message}
                             </p>
                         )}
                     </div>
@@ -105,18 +109,18 @@ export default function LoginPage() {
                             Mot de passe
                         </label>
                         <input
-                            {...register('password')}
+                            {...register('mot_de_passe')}
                             type="password"
                             className="w-full px-4 py-3 rounded-lg text-white text-sm outline-none focus:ring-2 transition-all"
                             style={{
                                 backgroundColor: '#1a3a52',
-                                border: errors.password ? '1px solid #e24b4a' : '1px solid transparent',
+                                border: errors.mot_de_passe ? '1px solid #e24b4a' : '1px solid transparent',
                             }}
                             placeholder=""
                         />
-                        {errors.password && (
+                        {errors.mot_de_passe && (
                             <p className="text-xs mt-1" style={{ color: '#e24b4a' }}>
-                                {errors.password.message}
+                                {errors.mot_de_passe.message}
                             </p>
                         )}
                     </div>
@@ -148,6 +152,13 @@ export default function LoginPage() {
                         S'inscrire
                     </a>
                 </p>
+
+                {/* Infos de test */}
+                {/* <div className="mt-4 p-2 rounded-lg" style={{ backgroundColor: '#1a3a52' }}>
+                    <p className="text-xs text-center" style={{ color: '#7a9bb5' }}>
+                        Test: samuel@iut.cm / password123
+                    </p>
+                </div> */}
             </div>
         </div>
     )

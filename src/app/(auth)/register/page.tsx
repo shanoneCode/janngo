@@ -7,14 +7,17 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import axiosInstance from '@/lib/axios'
 
+
 const registerSchema = z.object({
     nom: z.string().min(2, 'Minimum 2 caractères'),
     prenom: z.string().min(2, 'Minimum 2 caractères'),
-    matricule: z.string().min(4, 'Matricule invalide'),
     email: z.string().email('Email invalide'),
-    password: z.string().min(8, 'Minimum 8 caractères'),
+    mot_de_passe: z.string().min(8, 'Minimum 8 caractères'),
     confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
+    matricule: z.string().min(4, 'Matricule invalide'),
+    filiere: z.string().min(2, 'Filière requise'),
+    niveau: z.string().min(1, 'Niveau requis'),
+}).refine((data) => data.mot_de_passe === data.confirmPassword, {
     message: 'Les mots de passe ne correspondent pas',
     path: ['confirmPassword'],
 })
@@ -32,33 +35,50 @@ export default function RegisterPage() {
         formState: { errors },
     } = useForm<RegisterForm>({
         resolver: zodResolver(registerSchema),
+        defaultValues: {
+            nom: '',
+            prenom: '',
+            email: '',
+            mot_de_passe: '',
+            confirmPassword: '',
+            matricule: '',
+            filiere: 'Génie Logiciel',
+            niveau: 'Licence 1',
+        },
     })
 
     const onSubmit = async (data: RegisterForm) => {
         setError('')
         setIsLoading(true)
         try {
-            await axiosInstance.post('/auth/register/', {
+            await axiosInstance.post('/auth/register', {
                 nom: data.nom,
                 prenom: data.prenom,
-                matricule: data.matricule,
                 email: data.email,
-                password: data.password,
+                mot_de_passe: data.mot_de_passe,
+                role: 'etudiant',
+                matricule: data.matricule,
+                filiere: data.filiere,
+                niveau: data.niveau,
             })
             router.push('/login')
-        } catch {
-            setError('Erreur lors de l\'inscription. Vérifiez vos informations.')
+        } catch (err: any) {
+            console.error('Erreur inscription:', err)
+            const message = err.response?.data?.message || 'Erreur lors de l\'inscription. Vérifiez vos informations.'
+            setError(message)
         } finally {
             setIsLoading(false)
         }
     }
 
     const fields = [
-        { name: 'nom' as const, label: 'Nom' },
-        { name: 'prenom' as const, label: 'Prénom' },
-        { name: 'matricule' as const, label: 'Matricule' },
-        { name: 'email' as const, label: 'Email' },
-        { name: 'password' as const, label: 'Mot de passe', type: 'password' },
+        { name: 'nom' as const, label: 'Nom', type: 'text' },
+        { name: 'prenom' as const, label: 'Prénom', type: 'text' },
+        { name: 'matricule' as const, label: 'Matricule', type: 'text', placeholder: 'IUT2026XXX' },
+        { name: 'email' as const, label: 'Email', type: 'email', placeholder: 'exemple@iut.cm' },
+        { name: 'filiere' as const, label: 'Filière', type: 'text', placeholder: 'Génie Logiciel / Réseaux' },
+        { name: 'niveau' as const, label: 'Niveau', type: 'text', placeholder: 'Licence 1 / Licence 2' },
+        { name: 'mot_de_passe' as const, label: 'Mot de passe', type: 'password' },
         { name: 'confirmPassword' as const, label: 'Confirmer le mot de passe', type: 'password' },
     ]
 
@@ -79,7 +99,8 @@ export default function RegisterPage() {
                             </label>
                             <input
                                 {...register(field.name)}
-                                type={field.type || 'text'}
+                                type={field.type}
+                                placeholder={field.placeholder || ''}
                                 className="w-full px-4 py-3 rounded-lg text-white text-sm outline-none transition-all"
                                 style={{
                                     backgroundColor: '#1a3a52',
