@@ -19,23 +19,15 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false)
     const { login } = useAuth()
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<LoginForm>({
-        resolver: zodResolver(loginSchema)
+    const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
+        resolver: zodResolver(loginSchema),
     })
 
     const onSubmit = async (data: LoginForm) => {
         setError('')
         setIsLoading(true)
         try {
-
-            await login({
-                email: data.email,
-                mot_de_passe: data.mot_de_passe
-            })
+            await login({ email: data.email, mot_de_passe: data.mot_de_passe })
         } catch (err: any) {
             setError(err.message || 'Identifiants incorrects. Veuillez réessayer.')
         } finally {
@@ -44,90 +36,72 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0d2137' }}>
-            <div className="w-full max-w-sm mx-4 rounded-2xl p-8" style={{ backgroundColor: '#0f2d45' }}>
+        <div className="min-h-screen flex items-center justify-center"
+            style={{ backgroundColor: 'var(--bg-primary)' }}>
+            <div className="w-full max-w-sm mx-4 rounded-2xl p-8"
+                style={{ backgroundColor: 'var(--bg-secondary)' }}>
 
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-white tracking-widest">JANNGO</h1>
-                    <p className="text-sm mt-1" style={{ color: '#7a9bb5' }}>
+                    <h1 className="text-3xl font-bold tracking-widest"
+                        style={{ color: 'var(--text-primary)' }}>JANNGO</h1>
+                    <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
                         Gestion des requêtes étudiantes
                     </p>
                 </div>
 
-                {/* Toggle rôle (UI seulement, le backend détermine le rôle) */}
-                <div className="flex rounded-lg p-1 mb-6" style={{ backgroundColor: '#1a3a52' }}>
-                    <button
-                        type="button"
-                        onClick={() => setRole('etudiant')}
-                        className="flex-1 py-2 rounded-md text-sm font-medium transition-all"
-                        style={{
-                            backgroundColor: role === 'etudiant' ? '#2a5a7c' : 'transparent',
-                            color: role === 'etudiant' ? '#ffffff' : '#7a9bb5',
-                        }}
-                    >
-                        Etudiants
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setRole('admin')}
-                        className="flex-1 py-2 rounded-md text-sm font-medium transition-all"
-                        style={{
-                            backgroundColor: role === 'admin' ? '#2a5a7c' : 'transparent',
-                            color: role === 'admin' ? '#ffffff' : '#7a9bb5',
-                        }}
-                    >
-                        Administration
-                    </button>
+                {/* Toggle rôle */}
+                <div className="flex rounded-lg p-1 mb-6"
+                    style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+                    {(['etudiant', 'admin'] as const).map((r) => (
+                        <button
+                            key={r}
+                            type="button"
+                            onClick={() => setRole(r)}
+                            className="flex-1 py-2 rounded-md text-sm font-medium transition-all"
+                            style={{
+                                backgroundColor: role === r ? 'var(--accent)' : 'transparent',
+                                color: role === r ? 'var(--text-primary)' : 'var(--text-secondary)',
+                            }}
+                        >
+                            {r === 'etudiant' ? 'Etudiants' : 'Administration'}
+                        </button>
+                    ))}
                 </div>
 
                 {/* Formulaire */}
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div>
-                        <label className="block text-xs mb-1" style={{ color: '#7a9bb5' }}>
-                            Email
-                        </label>
-                        <input
-                            {...register('email')}
-                            type="email"
-                            className="w-full px-4 py-3 rounded-lg text-white text-sm outline-none focus:ring-2 transition-all"
-                            style={{
-                                backgroundColor: '#1a3a52',
-                                border: errors.email ? '1px solid #e24b4a' : '1px solid transparent',
-                            }}
-                            placeholder="exemple@iut.cm"
-                        />
-                        {errors.email && (
-                            <p className="text-xs mt-1" style={{ color: '#e24b4a' }}>
-                                {errors.email.message}
-                            </p>
-                        )}
-                    </div>
+                    {[
+                        { name: 'email' as const, label: 'Email', type: 'email', placeholder: 'exemple@iut.cm' },
+                        { name: 'mot_de_passe' as const, label: 'Mot de passe', type: 'password', placeholder: '' },
+                    ].map((field) => (
+                        <div key={field.name}>
+                            <label className="block text-xs mb-1"
+                                style={{ color: 'var(--text-secondary)' }}>
+                                {field.label}
+                            </label>
+                            <input
+                                {...register(field.name)}
+                                type={field.type}
+                                placeholder={field.placeholder}
+                                className="w-full px-4 py-3 rounded-lg text-sm outline-none transition-all"
+                                style={{
+                                    backgroundColor: 'var(--bg-input)',
+                                    color: 'var(--text-primary)',
+                                    border: errors[field.name] ? '1px solid var(--danger)' : '1px solid transparent',
+                                }}
+                            />
+                            {errors[field.name] && (
+                                <p className="text-xs mt-1" style={{ color: 'var(--danger)' }}>
+                                    {errors[field.name]?.message}
+                                </p>
+                            )}
+                        </div>
+                    ))}
 
-                    <div>
-                        <label className="block text-xs mb-1" style={{ color: '#7a9bb5' }}>
-                            Mot de passe
-                        </label>
-                        <input
-                            {...register('mot_de_passe')}
-                            type="password"
-                            className="w-full px-4 py-3 rounded-lg text-white text-sm outline-none focus:ring-2 transition-all"
-                            style={{
-                                backgroundColor: '#1a3a52',
-                                border: errors.mot_de_passe ? '1px solid #e24b4a' : '1px solid transparent',
-                            }}
-                            placeholder=""
-                        />
-                        {errors.mot_de_passe && (
-                            <p className="text-xs mt-1" style={{ color: '#e24b4a' }}>
-                                {errors.mot_de_passe.message}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Erreur API */}
                     {error && (
-                        <div className="rounded-lg px-4 py-3 text-sm" style={{ backgroundColor: '#3d1a1a', color: '#e24b4a' }}>
+                        <div className="rounded-lg px-4 py-3 text-sm"
+                            style={{ backgroundColor: 'color-mix(in srgb, var(--danger) 15%, transparent)', color: 'var(--danger)' }}>
                             {error}
                         </div>
                     )}
@@ -137,28 +111,20 @@ export default function LoginPage() {
                         disabled={isLoading}
                         className="w-full py-3 rounded-lg font-semibold text-sm tracking-widest transition-all mt-2"
                         style={{
-                            backgroundColor: isLoading ? '#1a3a52' : '#2a5a7c',
-                            color: isLoading ? '#7a9bb5' : '#ffffff',
+                            backgroundColor: isLoading ? 'var(--bg-tertiary)' : 'var(--accent)',
+                            color: isLoading ? 'var(--text-secondary)' : 'var(--text-primary)',
                         }}
                     >
                         {isLoading ? 'CONNEXION...' : 'CONNEXION'}
                     </button>
                 </form>
 
-                {/* Lien register */}
-                <p className="text-center text-xs mt-6" style={{ color: '#7a9bb5' }}>
+                <p className="text-center text-xs mt-6" style={{ color: 'var(--text-secondary)' }}>
                     Pas encore de compte ?{' '}
-                    <a href="/register" style={{ color: '#4a9eca' }} className="hover:underline">
+                    <a href="/register" style={{ color: 'var(--link)' }} className="hover:underline">
                         S'inscrire
                     </a>
                 </p>
-
-                {/* Infos de test */}
-                {/* <div className="mt-4 p-2 rounded-lg" style={{ backgroundColor: '#1a3a52' }}>
-                    <p className="text-xs text-center" style={{ color: '#7a9bb5' }}>
-                        Test: samuel@iut.cm / password123
-                    </p>
-                </div> */}
             </div>
         </div>
     )

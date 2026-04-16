@@ -124,13 +124,13 @@ export default function AdminDashboard() {
                 <aside className="w-64 min-h-screen border-r" style={{ backgroundColor: '#0f2d45', borderColor: '#1a3a52' }}>
                     <nav className="p-4 space-y-2">
                         <button className="w-full text-left px-4 py-2 rounded-lg text-sm" style={{ backgroundColor: '#2a5a7c', color: '#fff' }}>
-                            📊 Aperçu
+                            Aperçu
                         </button>
                         <button className="w-full text-left px-4 py-2 rounded-lg text-sm" style={{ color: '#7a9bb5' }}>
-                            📋 Transmises
+                            Transmises
                         </button>
                         <button className="w-full text-left px-4 py-2 rounded-lg text-sm" style={{ color: '#7a9bb5' }}>
-                            ⚙️ Paramètres
+                            Paramètres
                         </button>
                     </nav>
                 </aside>

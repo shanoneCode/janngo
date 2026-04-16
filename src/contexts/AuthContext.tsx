@@ -5,13 +5,12 @@ import Cookies from 'js-cookie'
 import { useRouter } from 'next/navigation'
 import axiosInstance from '@/lib/axios'
 
-
 interface User {
     id: number
     nom: string
     prenom: string
     email: string
-    role: 'etudiant' | 'enseignant' | 'admin' | 'administration'
+    role: 'etudiant' | 'scolarite' | 'admin' | 'administration'
 }
 
 interface LoginCredentials {
@@ -60,8 +59,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (credentials: LoginCredentials) => {
         try {
-
-
             const response = await axiosInstance.post<LoginResponse>('/auth/login', {
                 email: credentials.email,
                 mot_de_passe: credentials.mot_de_passe
@@ -69,20 +66,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             const { token, user: userData } = response.data
 
-
             Cookies.set('access_token', token, { expires: 7 })
             Cookies.set('user', JSON.stringify(userData), { expires: 7 })
 
             setUser(userData)
 
-            router.push('/dashboard')
-            // if (userData.role === 'admin' || userData.role === 'administration') {
-            //     router.push('/admin/dashboard')
-            // } else if (userData.role === 'enseignant') {
-            //     router.push('/enseignant/dashboard')
-            // } else {
-            //     router.push('/etudiant/dashboard')
-            // }
+            //  Redirection directe selon le rôle réel
+            if (userData.role === 'admin' || userData.role === 'administration') {
+                router.push('/admin/dashboard')
+            } else if (userData.role === 'scolarite') {
+                router.push('/scolarite/dashboard')
+            } else {
+                router.push('/etudiant/dashboard')
+            }
 
         } catch (error: any) {
             console.error('Erreur login:', error)
@@ -93,7 +89,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = async () => {
         try {
-
             const token = Cookies.get('access_token')
             if (token) {
                 await axiosInstance.post('/auth/logout')
@@ -101,7 +96,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (error) {
             console.error('Erreur logout:', error)
         } finally {
-
             Cookies.remove('access_token')
             Cookies.remove('user')
             setUser(null)

@@ -18,7 +18,7 @@ export default function EtudiantDashboard() {
     const router = useRouter()
     const [requetes, setRequetes] = useState<Requete[]>([])
     const [loadingRequetes, setLoadingRequetes] = useState(true)
-    const [activeTab, setActiveTab] = useState<'toutes' | 'en_attente' | 'en_cours' | 'traitee'>('toutes')
+    const [activeTab, setActiveTab] = useState<'toutes' | 'en_attente' | 'en_cours' | 'traitee' | 'rejetee'>('toutes')
 
     useEffect(() => {
         if (!isLoading && !user) router.push('/login')
@@ -51,13 +51,13 @@ export default function EtudiantDashboard() {
         ? requetes
         : requetes.filter(r => r.statut_actuel === activeTab)
 
-    const getStatutColor = (statut: string) => {
+    const getStatutColor = (statut: string): React.CSSProperties => {
         switch (statut) {
-            case 'en_attente': return { backgroundColor: '#2a1f00', color: '#f59e0b' }
-            case 'en_cours': return { backgroundColor: '#001a3a', color: '#60a5fa' }
-            case 'traitee': return { backgroundColor: '#002a1a', color: '#4ade80' }
-            case 'rejetee': return { backgroundColor: '#3d1a1a', color: '#e24b4a' }
-            default: return { backgroundColor: '#1a3a52', color: '#7a9bb5' }
+            case 'en_attente': return { backgroundColor: 'color-mix(in srgb, var(--warning) 15%, transparent)', color: 'var(--warning)' }
+            case 'en_cours': return { backgroundColor: 'color-mix(in srgb, var(--info) 15%, transparent)', color: 'var(--info)' }
+            case 'traitee': return { backgroundColor: 'color-mix(in srgb, var(--success) 15%, transparent)', color: 'var(--success)' }
+            case 'rejetee': return { backgroundColor: 'color-mix(in srgb, var(--danger) 15%, transparent)', color: 'var(--danger)' }
+            default: return { backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }
         }
     }
 
@@ -81,226 +81,208 @@ export default function EtudiantDashboard() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0d2137' }}>
-                <div className="text-white text-sm">Chargement...</div>
+            <div className="min-h-screen flex items-center justify-center"
+                style={{ backgroundColor: 'var(--bg-primary)' }}>
+                <div style={{ color: 'var(--text-primary)' }} className="text-sm">Chargement...</div>
             </div>
         )
     }
 
     if (!user) return null
 
+    const sidebarNavItems = [
+        { label: 'Mes requêtes', active: true, onClick: () => { } },
+        { label: 'Assistant', active: false, onClick: () => { } },
+        { label: 'Paramètres', active: false, onClick: () => router.push('/parametres') },
+    ]
+
+    const bottomNavItems = [
+        { label: 'Requêtes', active: true, onClick: () => { } },
+        { label: 'Assistant', active: false, onClick: () => { } },
+        { label: 'Paramètres', active: false, onClick: () => router.push('/parametres') },
+        { label: 'Déconnexion', active: false, onClick: logout, danger: true },
+    ]
+
     return (
-        <div className="min-h-screen" style={{ backgroundColor: '#0d2137' }}>
+        <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
             {/* ========== LAYOUT DESKTOP ========== */}
             <div className="hidden md:flex min-h-screen">
-
-                {/* Sidebar desktop */}
                 <aside className="w-64 min-h-screen flex flex-col border-r"
-                    style={{ backgroundColor: '#0f2d45', borderColor: '#1a3a52' }}>
+                    style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
 
-                    {/* Logo */}
-                    <div className="p-6 border-b" style={{ borderColor: '#1a3a52' }}>
-                        <h1 className="text-2xl font-bold text-white tracking-wider">JANNGO</h1>
+                    <div className="p-6 border-b" style={{ borderColor: 'var(--border)' }}>
+                        <h1 className="text-2xl font-bold tracking-wider"
+                            style={{ color: 'var(--text-primary)' }}>JANNGO</h1>
                     </div>
 
-                    {/* User info */}
-                    <div className="px-6 py-4 flex items-center gap-3 border-b" style={{ borderColor: '#1a3a52' }}>
+                    <div className="px-6 py-4 flex items-center gap-3 border-b"
+                        style={{ borderColor: 'var(--border)' }}>
                         <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold"
-                            style={{ backgroundColor: '#2a5a7c', color: '#fff' }}>
+                            style={{ backgroundColor: 'var(--accent)', color: 'var(--text-primary)' }}>
                             {user.prenom?.[0]}{user.nom?.[0]}
                         </div>
                         <div>
-                            <p className="text-sm text-white font-medium">{user.prenom} {user.nom}</p>
-                            <p className="text-xs" style={{ color: '#7a9bb5' }}>{user.role}</p>
+                            <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {user.prenom} {user.nom}
+                            </p>
+                            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{user.role}</p>
                         </div>
                     </div>
 
-                    {/* Nav */}
                     <nav className="flex-1 py-4">
-                        <button className="w-full text-left px-6 py-3 flex items-center gap-3 border-l-4 transition-all"
-                            style={{ backgroundColor: '#1a3a52', borderColor: '#2a5a7c', color: '#ffffff' }}>
-                            <span></span>
-                            <span className="text-sm">Mes requêtes</span>
-                        </button>
-                        <button className="w-full text-left px-6 py-3 flex items-center gap-3 border-l-4 border-transparent transition-all"
-                            style={{ color: '#7a9bb5' }}>
-                            <span></span>
-                            <span className="text-sm">Assistant</span>
-                        </button>
-                        <button className="w-full text-left px-6 py-3 flex items-center gap-3 border-l-4 border-transparent transition-all"
-                            style={{ color: '#7a9bb5' }}>
-                            <span></span>
-                            <span className="text-sm">Paramètres</span>
-                        </button>
+                        {sidebarNavItems.map((item) => (
+                            <button
+                                key={item.label}
+                                onClick={item.onClick}
+                                className="w-full text-left px-6 py-3 flex items-center gap-3 border-l-4 transition-all"
+                                style={{
+                                    backgroundColor: item.active ? 'var(--bg-tertiary)' : 'transparent',
+                                    borderColor: item.active ? 'var(--border-accent)' : 'transparent',
+                                    color: item.active ? 'var(--text-primary)' : 'var(--text-secondary)',
+                                }}>
+                                <span className="text-sm">{item.label}</span>
+                            </button>
+                        ))}
                     </nav>
 
-                    {/* Déconnexion */}
-                    <div className="p-4 border-t" style={{ borderColor: '#1a3a52' }}>
+                    <div className="p-4 border-t" style={{ borderColor: 'var(--border)' }}>
                         <button onClick={logout}
                             className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all"
-                            style={{ color: '#e24b4a' }}>
-                            <span></span>
+                            style={{ color: 'var(--danger)' }}>
+                            <span>🚪</span>
                             <span>Déconnexion</span>
                         </button>
                     </div>
                 </aside>
 
-                {/* Contenu desktop */}
                 <main className="flex-1 p-8">
                     <DashboardContent
-                        user={user}
-                        requetes={requetes}
-                        requetesFiltrees={requetesFiltrees}
-                        loadingRequetes={loadingRequetes}
-                        activeTab={activeTab}
-                        setActiveTab={setActiveTab}
-                        total={total}
-                        enAttente={enAttente}
-                        enCours={enCours}
-                        traitee={traitee}
-                        rejetee={rejetee}
-                        getStatutColor={getStatutColor}
-                        getStatutLabel={getStatutLabel}
-                        getTypeLabel={getTypeLabel}
-                        router={router}
+                        user={user} requetes={requetes} requetesFiltrees={requetesFiltrees}
+                        loadingRequetes={loadingRequetes} activeTab={activeTab} setActiveTab={setActiveTab}
+                        total={total} enAttente={enAttente} enCours={enCours} traitee={traitee} rejetee={rejetee}
+                        getStatutColor={getStatutColor} getStatutLabel={getStatutLabel}
+                        getTypeLabel={getTypeLabel} router={router}
                     />
                 </main>
             </div>
 
             {/* ========== LAYOUT MOBILE ========== */}
             <div className="md:hidden flex flex-col min-h-screen pb-20">
-
-                {/* Header mobile */}
                 <header className="px-4 py-4 flex items-center justify-between border-b"
-                    style={{ backgroundColor: '#0f2d45', borderColor: '#1a3a52' }}>
-                    <h1 className="text-lg font-bold text-white tracking-wider">janngo</h1>
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                            style={{ backgroundColor: '#2a5a7c', color: '#fff' }}>
-                            {user.prenom?.[0]}{user.nom?.[0]}
-                        </div>
+                    style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+                    <h1 className="text-lg font-bold tracking-wider"
+                        style={{ color: 'var(--text-primary)' }}>JANNGO</h1>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                        style={{ backgroundColor: 'var(--accent)', color: 'var(--text-primary)' }}>
+                        {user.prenom?.[0]}{user.nom?.[0]}
                     </div>
                 </header>
 
-                {/* Contenu mobile */}
                 <main className="flex-1 px-4 py-5 overflow-y-auto">
                     <DashboardContent
-                        user={user}
-                        requetes={requetes}
-                        requetesFiltrees={requetesFiltrees}
-                        loadingRequetes={loadingRequetes}
-                        activeTab={activeTab}
-                        setActiveTab={setActiveTab}
-                        total={total}
-                        enAttente={enAttente}
-                        enCours={enCours}
-                        traitee={traitee}
-                        rejetee={rejetee}
-                        getStatutColor={getStatutColor}
-                        getStatutLabel={getStatutLabel}
-                        getTypeLabel={getTypeLabel}
-                        router={router}
+                        user={user} requetes={requetes} requetesFiltrees={requetesFiltrees}
+                        loadingRequetes={loadingRequetes} activeTab={activeTab} setActiveTab={setActiveTab}
+                        total={total} enAttente={enAttente} enCours={enCours} traitee={traitee} rejetee={rejetee}
+                        getStatutColor={getStatutColor} getStatutLabel={getStatutLabel}
+                        getTypeLabel={getTypeLabel} router={router}
                     />
                 </main>
 
-                {/* Bottom navigation mobile */}
                 <nav className="fixed bottom-0 left-0 right-0 flex border-t z-50"
-                    style={{ backgroundColor: '#0f2d45', borderColor: '#1a3a52' }}>
-                    <button className="flex-1 flex flex-col items-center py-3 gap-1"
-                        style={{ color: '#4a9eca' }}>
-                        <span className="text-xl"></span>
-                        <span className="text-xs">Requêtes</span>
-                    </button>
-                    <button className="flex-1 flex flex-col items-center py-3 gap-1"
-                        style={{ color: '#7a9bb5' }}>
-                        <span className="text-xl"></span>
-                        <span className="text-xs">Assistant</span>
-                    </button>
-                    <button className="flex-1 flex flex-col items-center py-3 gap-1"
-                        style={{ color: '#7a9bb5' }}>
-                        <span className="text-xl"></span>
-                        <span className="text-xs">Paramètres</span>
-                    </button>
-                    <button onClick={logout}
-                        className="flex-1 flex flex-col items-center py-3 gap-1"
-                        style={{ color: '#e24b4a' }}>
-                        <span className="text-xl"></span>
-                        <span className="text-xs">Deconnexion</span>
-                    </button>
+                    style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+                    {bottomNavItems.map((item) => (
+                        <button
+                            key={item.label}
+                            onClick={item.onClick}
+                            className="flex-1 flex flex-col items-center py-3 gap-1 transition-all"
+                            style={{
+                                color: item.danger ? 'var(--danger)' : item.active ? 'var(--link)' : 'var(--text-secondary)',
+                            }}>
+                            <span className="text-xl">{ }</span>
+                            <span className="text-xs">{item.label}</span>
+                        </button>
+                    ))}
                 </nav>
             </div>
         </div>
     )
 }
 
-// ========== COMPOSANT CONTENU PARTAGÉ ==========
 function DashboardContent({
-    user, requetes, requetesFiltrees, loadingRequetes,
-    activeTab, setActiveTab, total, enAttente, enCours, traitee, rejetee,
+    user, requetesFiltrees, loadingRequetes, activeTab, setActiveTab,
+    total, enAttente, enCours, traitee, rejetee,
     getStatutColor, getStatutLabel, getTypeLabel, router
 }: any) {
-
     return (
         <>
             {/* Titre + bouton */}
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h2 className="text-xl font-bold text-white">Tableau de bord</h2>
-                    <p className="text-xs mt-0.5" style={{ color: '#7a9bb5' }}>
-                        Bonjour , {user.prenom}
+                    <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                        Tableau de bord
+                    </h2>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                        Bonjour, {user.prenom}
                     </p>
                 </div>
                 <button
                     onClick={() => router.push('/requetes/nouveau/erreur-nom')}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                    style={{ backgroundColor: '#2a5a7c', color: '#fff' }}>
+                    style={{ backgroundColor: 'var(--accent)', color: 'var(--text-primary)' }}>
                     <span>+</span>
                     <span className="hidden sm:inline">Nouvelle requête</span>
                     <span className="sm:hidden">Nouveau</span>
                 </button>
             </div>
 
-            {/* Cartes stats — 5 colonnes */}
+            {/* Stats */}
             <div className="grid grid-cols-5 gap-2 mb-6">
                 {[
-                    { label: 'Total', value: total, color: '#60a5fa', border: '#1a4a7a' },
-                    { label: 'En attente', value: enAttente, color: '#f59e0b', border: '#3a2a00' },
-                    { label: 'En cours', value: enCours, color: '#60a5fa', border: '#1a3a6a' },
-                    { label: 'Traitée', value: traitee, color: '#4ade80', border: '#003a20' },
-                    { label: 'Rejetée', value: rejetee, color: '#e24b4a', border: '#3d1a1a' },
+                    { label: 'Total', value: total, color: 'var(--info)', border: 'color-mix(in srgb, var(--info) 30%, transparent)' },
+                    { label: 'En attente', value: enAttente, color: 'var(--warning)', border: 'color-mix(in srgb, var(--warning) 30%, transparent)' },
+                    { label: 'En cours', value: enCours, color: 'var(--info)', border: 'color-mix(in srgb, var(--info) 30%, transparent)' },
+                    { label: 'Traitée', value: traitee, color: 'var(--success)', border: 'color-mix(in srgb, var(--success) 30%, transparent)' },
+                    { label: 'Rejetée', value: rejetee, color: 'var(--danger)', border: 'color-mix(in srgb, var(--danger) 30%, transparent)' },
                 ].map((stat) => (
                     <div key={stat.label} className="rounded-xl p-2 text-center border"
-                        style={{ backgroundColor: '#0f2d45', borderColor: stat.border }}>
-                        <div className="w-6 h-1 rounded mx-auto mb-2" style={{ backgroundColor: stat.color }} />
-                        <p className="text-lg font-bold text-white">{stat.value}</p>
-                        <p className="text-xs mt-1 leading-tight" style={{ color: '#7a9bb5' }}>{stat.label}</p>
+                        style={{ backgroundColor: 'var(--bg-secondary)', borderColor: stat.border }}>
+                        <div className="w-6 h-1 rounded mx-auto mb-2"
+                            style={{ backgroundColor: stat.color }} />
+                        <p className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+                            {stat.value}
+                        </p>
+                        <p className="text-xs mt-1 leading-tight" style={{ color: 'var(--text-secondary)' }}>
+                            {stat.label}
+                        </p>
                     </div>
                 ))}
             </div>
 
             {/* Section requêtes */}
-            <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#0f2d45' }}>
+            <div className="rounded-xl overflow-hidden"
+                style={{ backgroundColor: 'var(--bg-secondary)' }}>
 
-                {/* Header + filtres */}
                 <div className="px-4 py-3 border-b flex items-center justify-between flex-wrap gap-2"
-                    style={{ borderColor: '#1a3a52' }}>
-                    <h3 className="text-sm font-medium text-white">Mes requêtes</h3>
+                    style={{ borderColor: 'var(--border)' }}>
+                    <h3 className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                        Mes requêtes
+                    </h3>
                     <div className="flex gap-1 flex-wrap">
                         {[
                             { key: 'toutes', label: 'Toutes' },
                             { key: 'en_attente', label: 'En attente' },
                             { key: 'en_cours', label: 'En cours' },
-                            { key: 'traitee', label: 'traitee' },
-                            { key: 'rejetee', label: 'rejetee' },
+                            { key: 'traitee', label: 'Traitée' },
+                            { key: 'rejetee', label: 'Rejetée' },
                         ].map((tab) => (
                             <button
                                 key={tab.key}
                                 onClick={() => setActiveTab(tab.key)}
                                 className="px-3 py-1 rounded-full text-xs transition-all"
                                 style={{
-                                    backgroundColor: activeTab === tab.key ? '#2a5a7c' : '#1a3a52',
-                                    color: activeTab === tab.key ? '#fff' : '#7a9bb5',
+                                    backgroundColor: activeTab === tab.key ? 'var(--accent)' : 'var(--bg-tertiary)',
+                                    color: activeTab === tab.key ? 'var(--text-primary)' : 'var(--text-secondary)',
                                 }}>
                                 {tab.label}
                             </button>
@@ -308,33 +290,41 @@ function DashboardContent({
                     </div>
                 </div>
 
-                {/* Tableau desktop / Cartes mobile */}
                 {loadingRequetes ? (
-                    <div className="text-center py-10" style={{ color: '#7a9bb5' }}>Chargement...</div>
+                    <div className="text-center py-10" style={{ color: 'var(--text-secondary)' }}>
+                        Chargement...
+                    </div>
                 ) : requetesFiltrees.length === 0 ? (
                     <div className="text-center py-10">
-                        <p className="text-sm" style={{ color: '#7a9bb5' }}>Aucune requête trouvée.</p>
+                        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                            Aucune requête trouvée.
+                        </p>
                     </div>
                 ) : (
                     <>
-                        {/* Vue tableau — desktop */}
+                        {/* Vue tableau desktop */}
                         <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="border-b" style={{ borderColor: '#1a3a52', backgroundColor: '#0d2137' }}>
+                                    <tr className="border-b"
+                                        style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-primary)' }}>
                                         {['TYPE', 'SUJET', 'DATE', 'STATUT'].map(h => (
                                             <th key={h} className="text-left py-3 px-6 text-xs font-medium"
-                                                style={{ color: '#7a9bb5' }}>{h}</th>
+                                                style={{ color: 'var(--text-secondary)' }}>{h}</th>
                                         ))}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {requetesFiltrees.map((req: Requete) => (
-                                        <tr key={req.id} className="border-b transition-all hover:opacity-80"
-                                            style={{ borderColor: '#1a3a52' }}>
-                                            <td className="py-3 px-6 text-white">{getTypeLabel(req.type_requete)}</td>
-                                            <td className="py-3 px-6 text-white">{req.titre}</td>
-                                            <td className="py-3 px-6 text-xs" style={{ color: '#7a9bb5' }}>
+                                        <tr key={req.id} className="border-b transition-all"
+                                            style={{ borderColor: 'var(--border)' }}>
+                                            <td className="py-3 px-6" style={{ color: 'var(--text-primary)' }}>
+                                                {getTypeLabel(req.type_requete)}
+                                            </td>
+                                            <td className="py-3 px-6" style={{ color: 'var(--text-primary)' }}>
+                                                {req.titre}
+                                            </td>
+                                            <td className="py-3 px-6 text-xs" style={{ color: 'var(--text-secondary)' }}>
                                                 {new Date(req.created_at).toLocaleDateString('fr-FR')}
                                             </td>
                                             <td className="py-3 px-6">
@@ -349,16 +339,17 @@ function DashboardContent({
                             </table>
                         </div>
 
-                        {/* Vue cartes — mobile */}
-                        <div className="md:hidden divide-y" style={{ borderColor: '#1a3a52' }}>
+                        {/* Vue cartes mobile */}
+                        <div className="md:hidden divide-y" style={{ borderColor: 'var(--border)' }}>
                             {requetesFiltrees.map((req: Requete) => (
                                 <div key={req.id} className="px-4 py-4 flex items-start justify-between gap-3">
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-xs mb-1" style={{ color: '#7a9bb5' }}>
+                                        <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
                                             {getTypeLabel(req.type_requete)}
                                         </p>
-                                        <p className="text-sm text-white font-medium truncate">{req.titre}</p>
-                                        <p className="text-xs mt-1" style={{ color: '#4a6a7a' }}>
+                                        <p className="text-sm font-medium truncate"
+                                            style={{ color: 'var(--text-primary)' }}>{req.titre}</p>
+                                        <p className="text-xs mt-1" style={{ color: 'var(--text-hint)' }}>
                                             {new Date(req.created_at).toLocaleDateString('fr-FR')}
                                         </p>
                                     </div>

@@ -1,26 +1,71 @@
 @import "tailwindcss";
 
+/* ===== THÈME OCEAN (actuel — défaut) ===== */
+[data-theme="ocean"],
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-primary: #0d2137;
+  --bg-secondary: #0f2d45;
+  --bg-tertiary: #1a3a52;
+  --bg-input: #1a3a52;
+  --accent: #2a5a7c;
+  --accent-hover: #3a7aaa;
+  --text-primary: #ffffff;
+  --text-secondary: #7a9bb5;
+  --text-hint: #4a6a7a;
+  --border: #1a3a52;
+  --border-accent: #2a5a7c;
+  --link: #4a9eca;
+  --danger: #e24b4a;
+  --success: #4ade80;
+  --warning: #f59e0b;
+  --info: #60a5fa;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ===== THÈME SOMBRE ===== */
+[data-theme="dark"] {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1f1f1f;
+  --bg-input: #1f1f1f;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-hint: #64748b;
+  --border: #2a2a2a;
+  --border-accent: #3b82f6;
+  --link: #60a5fa;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --info: #3b82f6;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ===== THÈME CLAIR ===== */
+[data-theme="light"] {
+  --bg-primary: #f0f4f8;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e2e8f0;
+  --bg-input: #f1f5f9;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-hint: #94a3b8;
+  --border: #e2e8f0;
+  --border-accent: #2563eb;
+  --link: #2563eb;
+  --danger: #dc2626;
+  --success: #16a34a;
+  --warning: #d97706;
+  --info: #2563eb;
+}
+
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
