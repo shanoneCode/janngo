@@ -59,8 +59,8 @@ export default function RegisterPage() {
         { name: 'prenom' as const, label: 'Prénom', type: 'text' },
         { name: 'matricule' as const, label: 'Matricule', type: 'text', placeholder: 'IUT2026XXX' },
         { name: 'email' as const, label: 'Email', type: 'email', placeholder: 'exemple@iut.cm' },
-        { name: 'filiere' as const, label: 'Filière', type: 'text', placeholder: 'Génie Logiciel, Administration Systèmes et Réseaux, Genie Reseau et telecommunication' },
-        { name: 'niveau' as const, label: 'Niveau', type: 'text', placeholder: 'Licence 1 /Licence 2/ Licence 3' },
+        { name: 'filiere' as const, label: 'Filière', type: 'text', placeholder: 'Génie Logiciel / Réseaux' },
+        { name: 'niveau' as const, label: 'Niveau', type: 'text', placeholder: 'Licence 1 / Licence 2' },
         { name: 'mot_de_passe' as const, label: 'Mot de passe', type: 'password' },
         { name: 'confirmPassword' as const, label: 'Confirmer le mot de passe', type: 'password' },
     ]

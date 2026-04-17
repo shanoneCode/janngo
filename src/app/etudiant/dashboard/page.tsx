@@ -150,7 +150,6 @@ export default function EtudiantDashboard() {
                         <button onClick={logout}
                             className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all"
                             style={{ color: 'var(--danger)' }}>
-                            <span>🚪</span>
                             <span>Déconnexion</span>
                         </button>
                     </div>
